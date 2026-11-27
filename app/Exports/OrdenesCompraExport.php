@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\OrdenCompra;
 use App\Models\Requisicion;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -11,14 +12,27 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class OrdenesCompraExport implements FromCollection, WithHeadings, WithMapping
 {
+    public function __construct(
+        private string $fechaInicio,
+        private string $fechaFin,
+    ) {}
+
     public function collection(): Collection
     {
+        $finExclusivo = CarbonImmutable::parse($this->fechaFin)
+            ->addDay()
+            ->toDateString();
+
         $ordenes = OrdenCompra::with(['cotizacion.proveedor', 'requisicion.solicitante'])
+            ->where('fecha_pago_real', '>=', $this->fechaInicio)
+            ->where('fecha_pago_real', '<', $finExclusivo)
             ->orderByRaw('fecha_pago_programada IS NULL, fecha_pago_programada ASC')
             ->get();
 
-        $servicios = Requisicion::with('solicitante')
+        $servicios = Requisicion::with(['solicitante', 'archivos'])
             ->where('tipo', 'servicio')
+            ->where('fecha_pago_real', '>=', $this->fechaInicio)
+            ->where('fecha_pago_real', '<', $finExclusivo)
             ->orderByRaw('fecha_pago_programada IS NULL, fecha_pago_programada ASC')
             ->get();
 

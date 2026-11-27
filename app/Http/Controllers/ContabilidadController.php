@@ -59,8 +59,16 @@ class ContabilidadController extends Controller
         return back()->with('exito', "Servicio {$requisicion->titulo} marcado como pagado.");
     }
 
-    public function exportarExcel()
+    public function exportarExcel(Request $request)
     {
-        return Excel::download(new OrdenesCompraExport, 'ordenes_de_compra.xlsx');
+        $fechas = $request->validate([
+            'fecha_inicio' => ['required', 'date_format:Y-m-d'],
+            'fecha_fin' => ['required', 'date_format:Y-m-d', 'after_or_equal:fecha_inicio'],
+        ]);
+
+        return Excel::download(
+            new OrdenesCompraExport($fechas['fecha_inicio'], $fechas['fecha_fin']),
+            'ordenes_de_compra.xlsx'
+        );
     }
 }

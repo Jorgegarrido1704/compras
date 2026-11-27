@@ -5,9 +5,36 @@
 @section('contenido')
 <div class="flex items-center justify-between mb-1">
     <h1 class="text-xl font-semibold">Órdenes de pago</h1>
-    <a href="{{ route('contabilidad.exportar-excel') }}" class="bg-white border border-line text-ink font-medium px-4 py-2 rounded-sm hover:bg-paper transition-colors text-sm">
-        Exportar a Excel
-    </a>
+    <form method="GET"
+            action="{{ route('contabilidad.exportar-excel') }}"
+            class="flex flex-wrap items-end gap-3">
+            <div>
+                <label for="fecha_inicio" class="block text-sm">Desde</label>
+                <input type="date" id="fecha_inicio" name="fecha_inicio"
+                    value="{{ old('fecha_inicio') }}"
+                    class="border border-line rounded-sm px-3 py-2"
+                    required>
+                @error('fecha_inicio')
+                    <p class="text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="fecha_fin" class="block text-sm">Hasta</label>
+                <input type="date" id="fecha_fin" name="fecha_fin"
+                    value="{{ old('fecha_fin') }}"
+                    class="border border-line rounded-sm px-3 py-2"
+                    required>
+                @error('fecha_fin')
+                    <p class="text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <button type="submit"
+                    class="bg-white border border-line text-ink font-medium px-4 py-2 rounded-sm hover:bg-paper transition-colors text-sm">
+                Exportar a Excel
+            </button>
+        </form>
 </div>
 <p class="text-sm text-stamp-neutral mb-6">Ordenadas por fecha de pago programada.</p>
 
@@ -39,7 +66,7 @@
                     <th class="px-4 py-3">Fecha de pago</th>
                     <th class="px-4 py-3">Estatus</th>
                     <th class="px-4 py-3">Documentos</th>
-                    
+
                 </tr>
             </thead>
             <tbody class="divide-y divide-line">
